@@ -1,4 +1,6 @@
+Here's the updated code with your 👍i code pre-filled:
 
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,6 +59,14 @@
             border-bottom: 1px solid white;
             margin-bottom: -1px;
         }
+        #livePreview {
+            position: relative;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -64,23 +74,13 @@
     <label>Enter Story:</label>
     <textarea id="storyInput" placeholder="Enter your story text here..." oninput="updatePreview()"></textarea>
     
-    <div class="option-row">
-        <input type="checkbox" id="preserveHtml" checked onchange="updatePreview()">
-        <label for="preserveHtml">My story contains HTML formatting</label>
-    </div>
-    
-    <label>Paste 👍i Code:</label>
-    <textarea id="iconCodeInput" placeholder="Paste your 👍i button code here..." oninput="updatePreview()"></textarea>
-    
-    <div>
-        <button onclick="generateCode()">Generate</button>
+    <div class="button-group">
+        <button onclick="generateCode()">Generate Code</button>
         <button onclick="copyCode()">Copy Code</button>
+        <button onclick="loadDefaultIcon()">Load Default 👍i</button>
     </div>
     
     <div id="copySuccess" class="success-message">Code copied to clipboard!</div>
-    
-    <h3>Generated Code:</h3>
-    <pre id="output">Your generated code will appear here...</pre>
     
     <div class="tabs">
         <div class="tab active" onclick="switchTab('preview')">Preview</div>
@@ -91,98 +91,809 @@
         <div id="livePreview">Your preview will appear here...</div>
     </div>
     
+    <div id="codeContainer" style="display: none;">
+        <h3>Generated Code:</h3>
+        <pre id="output">Your generated code will appear here...</pre>
+    </div>
+    
+    <label>Paste 👍i Code:</label>
+    <textarea id="iconCodeInput" placeholder="Paste your 👍i button code here..." oninput="updatePreview()"></textarea>
+    
     <script>
-        function updatePreview() {
-            const story = document.getElementById("storyInput").value;
-            const iconCode = document.getElementById("iconCodeInput").value;
-            const preserveHtml = document.getElementById("preserveHtml").checked;
-            
-            // Format the story text properly
-            let formattedStory;
-            if (preserveHtml) {
-                // Keep HTML as is
-                formattedStory = story;
-            } else {
-                // Convert plain text to HTML with paragraphs
-                formattedStory = story
-                    .split(/\n\s*\n/) // Split on empty lines (paragraphs)
-                    .map(para => para.trim())
-                    .filter(para => para.length > 0)
-                    .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`)
-                    .join('');
-            }
-            
-            const combinedContent = `<div style="position: relative;">${formattedStory} ${iconCode}</div>`;
-            
-            // Update the live preview
-            document.getElementById("livePreview").innerHTML = combinedContent;
+        // Store the default icon code
+        const defaultIconCode = `<!-- Tiamoyo 👍i Widget with Payment Form - Embed this code on your page -->
+<style>
+    /* Widget Container */
+    .tiamoyo-widget {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        z-index: 9999;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+
+    /* Main Button */
+    .thumbs-i-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background: #0077b6;
+        border-radius: 50%;
+        font-size: 32px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        cursor: pointer;
+        position: relative;
+        transition: transform 0.2s ease;
+        margin: 0 auto;
+        border: none;
+        color: white;
+    }
+
+    .thumbs-i-button:hover {
+        transform: scale(1.05);
+    }
+
+    /* "i" Badge */
+    .i-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 24px;
+        height: 24px;
+        background: white;
+        color: #0077b6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-style: italic;
+        font-weight: bold;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Popup Overlay */
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 9998;
+        display: none;
+    }
+
+    /* Popup Container */
+    .tiamoyo-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        width: 320px;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        display: none;
+        animation: popup-fade-in 0.3s ease;
+        z-index: 9999;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    @keyframes popup-fade-in {
+        from { opacity: 0; transform: translate(-50%, -45%); }
+        to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    /* Popup Header */
+    .popup-header {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .popup-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #0077b6;
+        margin-bottom: 5px;
+    }
+
+    .popup-subtitle {
+        font-size: 14px;
+        color: #555;
+    }
+
+    /* Project Options */
+    .project-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .project-option {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .project-option:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .option-icon {
+        font-size: 24px;
+        margin-right: 12px;
+    }
+
+    .option-details {
+        flex-grow: 1;
+    }
+
+    .option-title {
+        font-weight: 600;
+        font-size: 15px;
+        color: #333;
+    }
+
+    .option-desc {
+        font-size: 12px;
+        color: #666;
+        margin-top: 2px;
+    }
+
+    /* Project Details */
+    .project-icon-large {
+        font-size: 48px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .project-description {
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .donate-button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        transition: background-color 0.2s;
+        margin-bottom: 15px;
+    }
+
+    .donate-button:hover {
+        background-color: #43a047;
+    }
+
+    .visual-element {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    /* Well visualization */
+    .well-progress {
+        height: 150px;
+        width: 60px;
+        background-color: #f1f1f1;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .well-water {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 35%;
+        background-color: #48cae4;
+    }
+
+    /* Tractor visualization */
+    .tractor-container {
+        text-align: center;
+    }
+
+    .tractor-icon {
+        font-size: 40px;
+    }
+
+    .fuel-gauge {
+        height: 12px;
+        background-color: #f1f1f1;
+        border-radius: 6px;
+        margin: 10px auto;
+        width: 80%;
+        overflow: hidden;
+    }
+
+    .fuel-level {
+        height: 100%;
+        width: 40%;
+        background-color: #f39c12;
+    }
+
+    /* Training visualization */
+    .farmers-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .farmer-icon {
+        font-size: 24px;
+    }
+
+    /* Support visualization */
+    .support-heart {
+        font-size: 40px;
+        color: #e74c3c;
+        text-align: center;
+        animation: heart-pulse 1.5s infinite;
+    }
+
+    @keyframes heart-pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Navigation Buttons */
+    .popup-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .back-button, .close-button {
+        color: #0077b6;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .back-button:hover, .close-button:hover {
+        text-decoration: underline;
+    }
+
+    /* Thank You Popup */
+    .thank-you-message {
+        text-align: center;
+    }
+
+    .success-icon {
+        font-size: 48px;
+        color: #4CAF50;
+        margin-bottom: 15px;
+    }
+
+    .thank-you-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    /* Payment Form Styling */
+    .payment-form {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .form-header {
+        background-color: #00a37f;
+        color: white;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .form-header h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .form-content {
+        padding: 15px;
+    }
+
+    .donation-amounts {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .amount-option {
+        flex: 1;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px 4px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+
+    .amount-option.selected {
+        background: #00a37f;
+        color: white;
+        border-color: #00a37f;
+    }
+
+    .donation-description {
+        background: #f9f9f9;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+
+    .donation-impact {
+        font-weight: bold;
+        color: #00a37f;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .card-details {
+        display: flex;
+        gap: 10px;
+    }
+
+    .card-details .form-group {
+        flex: 1;
+    }
+
+    .submit-button {
+        background-color: #00a37f;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.2s;
+    }
+
+    .submit-button:hover {
+        background-color: #008c6c;
+    }
+
+    .form-footer {
+        margin-top: 10px;
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 480px) {
+        .tiamoyo-popup {
+            width: 280px;
+            padding: 15px;
         }
+    }
+</style>
+
+<!-- Widget HTML -->
+<div class="tiamoyo-widget" id="tiamoyo-widget">
+    <button class="thumbs-i-button" id="thumbs-i-button">
+        👍
+        <div class="i-badge">i</div>
+    </button>
+</div>
+
+<!-- Popup Overlay -->
+<div class="popup-overlay" id="popup-overlay"></div>
+
+<!-- Project Selection Popup -->
+<div id="projects-popup" class="tiamoyo-popup">
+    <div class="popup-header">
+        <div class="popup-title">Tiamoyo Project</div>
+        <div class="popup-subtitle">Your $5 makes a difference!</div>
+    </div>
+    
+    <div class="project-options">
+        <div class="project-option" onclick="showProjectDetails('well')">
+            <span class="option-icon">💧</span>
+            <div class="option-details">
+                <div class="option-title">Dig the Well</div>
+                <div class="option-desc">$5 funds 1 inch of well drilling</div>
+            </div>
+        </div>
         
-        function generateCode() {
-            const story = document.getElementById("storyInput").value;
-            const iconCode = document.getElementById("iconCodeInput").value;
-            const preserveHtml = document.getElementById("preserveHtml").checked;
-            
-            // Format the story text properly
-            let formattedStory;
-            if (preserveHtml) {
-                // Keep HTML as is
-                formattedStory = story;
-            } else {
-                // Convert plain text to HTML with paragraphs
-                formattedStory = story
-                    .split(/\n\s*\n/) // Split on empty lines (paragraphs)
-                    .map(para => para.trim())
-                    .filter(para => para.length > 0)
-                    .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`)
-                    .join('');
-            }
-            
-            const generatedCode = `<div style="position: relative;">${formattedStory} ${iconCode}</div>`;
-            
-            document.getElementById("output").textContent = generatedCode;
-            updatePreview();
-        }
+        <div class="project-option" onclick="showProjectDetails('tractor')">
+            <span class="option-icon">🚜</span>
+            <div class="option-details">
+                <div class="option-title">Fuel the Tractors</div>
+                <div class="option-desc">$5 powers 1 hour of tractor operation</div>
+            </div>
+        </div>
         
-        function copyCode() {
-            const output = document.getElementById("output").textContent;
-            navigator.clipboard.writeText(output).then(() => {
-                // Show success message
-                const successMessage = document.getElementById("copySuccess");
-                successMessage.style.display = "block";
-                
-                // Hide it after 2 seconds
-                setTimeout(() => {
-                    successMessage.style.display = "none";
-                }, 2000);
-            });
-        }
+        <div class="project-option" onclick="showProjectDetails('training')">
+            <span class="option-icon">👨‍🌾</span>
+            <div class="option-details">
+                <div class="option-title">Train Farmers</div>
+                <div class="option-desc">$5 contributes to training sessions</div>
+            </div>
+        </div>
         
-        function switchTab(tabName) {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            
-            // Activate the clicked tab
-            event.currentTarget.classList.add('active');
-            
-            // Show the appropriate container
-            if (tabName === 'code') {
-                document.getElementById('output').style.display = 'block';
-                document.querySelector('.preview-container').style.display = 'none';
-            } else {
-                document.getElementById('output').style.display = 'none';
-                document.querySelector('.preview-container').style.display = 'block';
-            }
-        }
+        <div class="project-option" onclick="showProjectDetails('support')">
+            <span class="option-icon">🙏</span>
+            <div class="option-details">
+                <div class="option-title">General Support</div>
+                <div class="option-desc">$5 helps our mission in Tanzania</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="popup-footer">
+        <div></div>
+        <span class="close-button" onclick="closePopups()">Close</span>
+    </div>
+</div>
+
+<!-- Well Project Details Popup -->
+<div id="well-details" class="tiamoyo-popup">
+    <div class="popup-header">
+        <div class="project-icon-large">💧</div>
+        <div class="popup-title">Dig the Well</div>
+        <div class="popup-subtitle">Help us reach water 60 feet below</div>
+    </div>
+    
+    <div class="project-description">
+        We need to dig a well on the Agape farm to provide sustainable water access for irrigation and community use. Water is available 60 feet (720 inches) below ground.
+    </div>
+    
+    <div class="visual-element">
+        <div class="well-progress">
+            <div class="well-water"></div>
+        </div>
+        <div style="font-size: 12px; margin-top: 10px; color: #666;">Currently at 35% of our $5,000 goal</div>
+    </div>
+    
+    <button class="donate-button" onclick="showPaymentForm('well')">Donate $5 to Dig 1 Inch</button>
+    
+    <div class="popup-footer">
+        <span class="back-button" onclick="backToProjects()">← Back</span>
+        <span class="close-button" onclick="closePopups()">Close</span>
+    </div>
+</div>
+
+<!-- Tractor Project Details Popup -->
+<div id="tractor-details" class="tiamoyo-popup">
+    <div class="popup-header">
+        <div class="project-icon-large">🚜</div>
+        <div class="popup-title">Fuel the Tractors</div>
+        <div class="popup-subtitle">Keep our equipment running</div>
+    </div>
+    
+    <div class="project-description">
+        Our tractors are crucial for preparing farmland for local families. We recently shipped two tractors to Tanzania that need fuel and maintenance to operate effectively for the community.
+    </div>
+    
+    <div class="visual-element">
+        <div class="tractor-container">
+            <div class="tractor-icon">🚜</div>
+            <div class="fuel-gauge">
+                <div class="fuel-level"></div>
+            </div>
+            <div style="font-size: 12px; color: #666;">40% of monthly fuel needs funded</div>
+        </div>
+    </div>
+    
+    <button class="donate-button" onclick="showPaymentForm('tractor')">Donate $5 for 1 Hour of Operation</button>
+    
+    <div class="popup-footer">
+        <span class="back-button" onclick="backToProjects()">← Back</span>
+        <span class="close-button" onclick="closePopups()">Close</span>
+    </div>
+</div>
+
+<!-- Training Project Details Popup -->
+<div id="training-details" class="tiamoyo-popup">
+    <div class="popup-header">
+        <div class="project-icon-large">👨‍🌾</div>
+        <div class="popup-title">Train Farmers</div>
+        <div class="popup-subtitle">Teaching sustainable agriculture</div>
+    </div>
+    
+    <div class="project-description">
+        We provide training in conservation agriculture techniques to local farmers, helping them increase crop yields while preserving natural resources for future generations.
+    </div>
+    
+    <div class="visual-element">
+        <div class="farmers-row">
+            <div class="farmer-icon">👨‍🌾</div>
+            <div class="farmer-icon">👩‍🌾</div>
+            <div class="farmer-icon">👨‍🌾</div>
+        </div>
+        <div class="farmers-row">
+            <div class="farmer-icon">👩‍🌾</div>
+            <div class="farmer-icon">👨‍🌾</div>
+            <div class="farmer-icon">👩‍🌾</div>
+        </div>
+        <div style="font-size: 12px; color: #666;">68 farmers trained so far</div>
+    </div>
+    
+    <button class="donate-button" onclick="showPaymentForm('training')">Donate $5 to Support Training</button>
+    
+    <div class="popup-footer">
+        <span class="back-button" onclick="backToProjects()">← Back</span>
+        <span class="close-button" onclick="closePopups()">Close</span>
+    </div>
+</div>
+
+<!-- Support Project Details Popup -->
+<div id="support-details" class="tiamoyo-popup">
+    <div class="popup-header">
+        <div class="project-icon-large">🙏</div>
+        <div class="popup-title">General Support</div>
+        <div class="popup-subtitle">Help where needed most</div>
+    </div>
+    
+    <div class="project-description">
+        Your general support allows us to direct funds to the most urgent needs across all our projects in Tanzania, ensuring we can respond quickly to changing priorities.
+    </div>
+    
+    <div class="visual-element">
+        <div class="support-heart">❤️</div>
+        <div style="font-size: 12px; color: #666;">Supporting communities since 2019</div>
+    </div>
+    
+    <button class="donate-button" onclick="showPaymentForm('support')">Donate $5 for General Support</button>
+    
+    <div class="popup-footer">
+        <span class="back-button" onclick="backToProjects()">← Back</span>
+        <span class="close-button" onclick="closePopups()">Close</span>
+    </div>
+</div>
+
+<!-- Payment Form Popup -->
+<div id="payment-form-popup" class="tiamoyo-popup">
+    <div class="payment-form">
+        <div class="form-header">
+            <h3 id="payment-form-title">Your donation helps Tiamoyo</h3>
+        </div>
         
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set default tab
-            document.getElementById('output').style.display = 'none';
+        <div class="form-content">
+            <div class="donation-amounts">
+                <div class="amount-option" onclick="selectAmount(5)">$5</div>
+                <div class="amount-option selected" onclick="selectAmount(15)">$15</div>
+                <div class="amount-option" onclick="selectAmount(25)">$25</div>
+                <div class="amount-option" onclick="selectAmount(50)">$50</div>
+            </div>
             
-            // Update preview when page loads
-            updatePreview();
+            <div class="donation-description">
+                Your donation of <span class="donation-impact" id="donation-impact">$15 will dig 3 inches</span> of our well on the Agape farm.
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" placeholder="Your name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" placeholder="Your email address">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Card Number</label>
+                <input type="text" class="form-control" placeholder="1234 5678 9012 3456">
+            </div>
+            
+            <div class="card-details">
+                <div class="form-group">
+                    <label class="form-label">Expiry</label>
+                    <input type="text" class="form-control" placeholder="MM/YY">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CVC</label>
+                    <input type="text" class="form-control" placeholder="123">
+                </div>
+            </div>
+            
+            <button class="submit-button" id="submit-payment-button" onclick="showThankYou()">Donate $15</button>
+            
+            <div class="form-footer">
+                Secure payment via Raisly
+            </div>
+        </div>
+    </div>
+    
+    <div class="popup-footer">
+        <span class="back-button" id="payment-back-button">← Back</span>
+        <span class="close-button" onclick="closePopups()">Close</span>
+    </div>
+</div>
+
+<!-- Thank You Popup -->
+<div id="thank-you-popup" class="tiamoyo-popup">
+    <div class="thank-you-message">
+        <div class="success-icon">✓</div>
+        <div class="thank-you-title">Thank You!</div>
+        <p id="thank-you-message">Your donation will help support our work in Tanzania.</p>
+        <p>We'll send you updates on our progress!</p>
+    </div>
+    
+    <button class="donate-button" onclick="closePopups()">Back to Article</button>
+</div>
+
+<script>
+    // Current project and amount state
+    let currentProject = '';
+    let currentAmount = 15;
+    
+    // Initialize event listener when document is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click event to the thumbs-i button
+        document.getElementById('thumbs-i-button').addEventListener('click', function() {
+            showProjectsPopup();
         });
-    </script>
-</body>
-</html>
+        
+        // Add click event to the overlay for closing popups
+        document.getElementById('popup-overlay').addEventListener('click', function() {
+            closePopups();
+        });
+        
+        // Set up back button for payment form
+        document.getElementById('payment-back-button').addEventListener('click', function() {
+            closePopups();
+            showProjectDetails(currentProject);
+        });
+    });
+    
+    // Show projects selection popup
+    function showProjectsPopup() {
+        closePopups(); // Close any open popups first
+        document.getElementById('projects-popup').style.display = 'block';
+        document.getElementById('popup-overlay').style.display = 'block';
+    }
+    
+    // Show project details popup
+    function showProjectDetails(projectType) {
+        closePopups(); // Close all popups first
+        currentProject = projectType;
+        document.getElementById(`${projectType}-details`).style.display = 'block';
+        document.getElementById('popup-overlay').style.display = 'block';
+    }
+    
+    // Go back to projects selection
+    function backToProjects() {
+        closePopups(); // Close all popups first
+        document.getElementById('projects-popup').style.display = 'block';
+        document.getElementById('popup-overlay').style.display = 'block';
+    }
+    
+    // Show payment form
+    function showPaymentForm(projectType) {
+        closePopups(); // Close all popups first
+        currentProject = projectType;
+        
+        // Set form title and impact text based on project type
+        const formTitle = document.getElementById('payment-form-title');
+        const impactText = document.getElementById('donation-impact');
+        
+        switch(projectType) {
+            case 'well':
+                formTitle.textContent = 'Your donation helps dig the well';
+                updateImpactText(currentAmount, 'well');
+                break;
+            case 'tractor':
+                formTitle.textContent = 'Your donation helps fuel the tractors';
+                updateImpactText(currentAmount, 'tractor');
+                break;
+            case 'training':
+                formTitle.textContent = 'Your donation helps train farmers';
+                updateImpactText(currentAmount, 'training');
+                break;
+            case 'support':
+                formTitle.textContent = 'Your donation supports our mission';
+                updateImpactText(currentAmount, 'support');
+                break;
+        }
+        
+        document.getElementById('payment-form-popup').style.display = 'block';
+        document.getElementById('popup-overlay').style.display = 'block';
+    }
+    
+    // Select donation amount
+    function selectAmount(amount) {
+        currentAmount = amount;
+        
+        // Update visual selection
+        const options = document.querySelectorAll('.amount-option');
+        options.forEach(option => {
+            option.classList.remove('selected');
+            if (option.textContent === `$${amount}`) {
+                option.classList.add('selected');
+            }
+        });
+        
+        // Update impact text
+        updateImpactText(amount, currentProject);
+        
+        // Update button text
+        document.getElementById('submit-payment-button').textContent = `Donate $${amount}`;
+    }
+    
+    // Update impact text based on amount and project
+    function updateImpactText(amount, projectType) {
+        const impactText = document.getElementById('donation-impact');
+        const units = Math.floor(amount / 5);
+        
+        switch(projectType) {
+            case 'well':
+                impactText.textContent = `$${amount} will dig ${units} inch${units !== 1 ? 'es' : ''}`;
+                break;
+            case 'tractor':
+                impactText.textContent = `$${amount} will fuel ${units} hour${units !== 1 ? 's' : ''} of operation`;
+                break;
+            case 'training':
+                impactText.textContent = `$${amount} will support ${units} training session${units !== 1 ? 's' : ''}`;
+                break;
+            case 'support':
+                impactText.textContent = `$${amount} will support our mission in Tanzania`;
+                break;
+        }
+    }
+    
+    // Show thank you message
+    function showThankYou() {
+        closePopups(); // Close all popups first
+        
+        // Set custom thank you message based on project type and amount
+        let message = '';
+        const units = Math.floor(currentAmount / 5);
+        
+        switch(currentProject) {
+            case 'well':
+                message = `Your donation of $${currentAmount} will help dig ${units} inch${units !== 1 ? 'es' : ''} of our well at the Agape farm.`;
+                break;
+            case 'tractor':
+                message = `Your donation of $${currentAmount} will fuel our tractors for ${units} hour${units !== 1 ?​​​​​​​​​​​​​​​​
